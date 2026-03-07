@@ -22,12 +22,22 @@ from telegram.ext import (
     filters,
 )
 
-BOT_TOKEN = "8713196353:AAGcciu-psNRXxf512STUhJwmzl61rpXGr8"
-ADMIN_USER_ID = 1122790691
+import os
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+admin_user_id = os.getenv("ADMIN_USER_ID")
+
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN is not set")
+
+if not admin_user_id:
+    raise ValueError("ADMIN_USER_ID is not set")
+
+ADMIN_USER_ID = int(admin_user_id)
 TZ = ZoneInfo("Europe/Moscow")
 
 WORK_DOW = {0, 1, 2, 3, 4, 5}
-WORK_START_HOUR = 10
+WORK_START_HOUR= 10
 WORK_END_HOUR = 18
 SLOT_MINUTES = 30
 
