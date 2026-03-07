@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+appointments.db
+.venv311/
+.DS_Store
+
