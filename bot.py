@@ -26,9 +26,8 @@ from telegram.ext import (
 
 import os
 
-
-BOT_TOKEN = "8713196353:AAGcciu-psNRXxf512STUhJwmzl61rpXGr8"
-ADMIN_USER_ID = 1122790691
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_USER_ID = int(os.getenv("ADMIN_USER_ID"))
 
 TZ = ZoneInfo("Europe/Moscow")
 
@@ -36,7 +35,6 @@ WORK_DOW = {0,1,2,3,4,5}
 WORK_START_HOUR = 10
 WORK_END_HOUR = 18
 SLOT_MINUTES = 30
-
 
 MENU, CHOOSE_DATE, CHOOSE_TIME, ENTER_NAME, ENTER_PHONE = range(5)
 
@@ -73,7 +71,6 @@ def slot_taken(date,time):
     )
 
     r = cur.fetchone()
-
     con.close()
 
     return r is not None
@@ -90,7 +87,6 @@ def user_has_appointment(user_id):
     )
 
     r = cur.fetchone()
-
     con.close()
 
     return r
@@ -125,7 +121,6 @@ def generate_slots():
     while cur + step <= end_dt:
 
         slots.append(cur.strftime("%H:%M"))
-
         cur += step
 
     return slots
@@ -169,11 +164,8 @@ def times_keyboard(date):
     for t in SLOTS:
 
         if slot_taken(date,t):
-
             kb.append([InlineKeyboardButton(f"⛔ {t}",callback_data="noop")])
-
         else:
-
             kb.append([InlineKeyboardButton(f"✅ {t}",callback_data=f"time:{t}")])
 
     return InlineKeyboardMarkup(kb)
@@ -182,33 +174,24 @@ def times_keyboard(date):
 async def start(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
     text = (
-
         "Инструкция записи\n\n"
-
         "1. Голосовая запись\n"
         "Отправьте голосовое сообщение.\n\n"
-
         "2. Тилди тандаңыз\n"
         "Выберите язык.\n\n"
-
         "3. Күндү белгилеңиз\n"
         "Выберите дату.\n\n"
-
         "4. Убакытты тандаңыз\n"
         "Выберите время.\n\n"
-
         "5. Атыңызды жазыңыз\n"
         "Напишите имя.\n\n"
-
         "6. Контакт жөнөтүү баскычын териңиз\n"
         "Нажмите кнопку отправить контакт.\n\n"
-
         "7. Поделитьсяны басыңыз\n"
         "Нажмите поделиться."
     )
 
     await update.message.reply_text(text, reply_markup=main_menu())
-
     return MENU
 
 
@@ -231,7 +214,6 @@ async def menu_click(update:Update,context:ContextTypes.DEFAULT_TYPE):
         con.close()
 
         await q.edit_message_text("❌ Ваша запись отменена")
-
         return MENU
 
 
@@ -281,7 +263,6 @@ async def choose_date(update:Update,context:ContextTypes.DEFAULT_TYPE):
     await q.answer()
 
     date = q.data.split(":")[1]
-
     context.user_data["date"] = date
 
     await q.edit_message_text(
@@ -298,11 +279,9 @@ async def choose_time(update:Update,context:ContextTypes.DEFAULT_TYPE):
     await q.answer()
 
     t = q.data.split(":")[1]
-
     context.user_data["time"] = t
 
     await q.edit_message_text("Введите имя")
-
     return ENTER_NAME
 
 
@@ -351,6 +330,7 @@ async def enter_phone(update:Update,context:ContextTypes.DEFAULT_TYPE):
     return MENU
 
 
+async def reminder_loop(app):
 
     while True:
 
@@ -360,30 +340,25 @@ async def enter_phone(update:Update,context:ContextTypes.DEFAULT_TYPE):
         cur = con.cursor()
 
         cur.execute("SELECT user_id,date,time FROM appointments")
-
         rows = cur.fetchall()
 
         for user_id,date,time in rows:
 
             dt = datetime.fromisoformat(date+"T"+time)
-
             diff = dt - now
 
             if timedelta(hours=23,minutes=50) < diff < timedelta(hours=24,minutes=10):
 
                 try:
-
                     await app.bot.send_message(
                         user_id,
                         f"🔔 Напоминание\n\n"
                         f"Завтра запись\n📅 {date}\n⏰ {time}"
                     )
-
                 except:
                     pass
 
         con.close()
-
         await asyncio.sleep(600)
 
 
@@ -416,147 +391,16 @@ def main():
     )
 
     app.add_handler(conv)
-app.create_task(reminder_loop(app))
-print("Бот запущен")
-app.run_polling()
 
-    
+    app.create_task(reminder_loop(app))
 
-    
+    print("Бот запущен")
 
-    
+    app.run_polling()
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
